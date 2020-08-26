@@ -28,6 +28,8 @@ class PacketBuilder:
 
         self.buffer.extend(self.pack("f", single))
 
+        return self
+
     def add_byte(self, i8):
         self.buffer.append(i8)
 
@@ -42,6 +44,8 @@ class PacketBuilder:
         sign = get_signed_or_unsigned(unsigned, 'h')
 
         self.buffer.extend(self.pack(sign, i16))
+
+        return self
 
     def add_int32(self, i32, unsigned=True):
         sign = get_signed_or_unsigned(unsigned, 'i')
@@ -97,6 +101,20 @@ class PacketReader:
 
         return data
 
+    def read_buffer(self, length):
+        buffer = self.buffer[:length]
+
+        self.buffer = self.buffer[length:]
+
+        return buffer
+
+    def read_byte(self):
+        byte = self.buffer[0]
+
+        self.buffer = self.buffer[1:]
+
+        return byte
+
     def read_single(self):
         """
             Read single precision float from buffer
@@ -147,6 +165,9 @@ class Player:
                  under_shirt_color=black_color, pants_color=black_color,
                  difficulty_flags=MEDIUMCORE, torch_flags=0,
                  shoe_color=black_color, journey_mode=True):
+        if journey_mode:
+            difficulty_flags |= CREATIVE
+
         self.name = name
         self.skin_variant = skin_variant
         self.hair = hair
@@ -163,9 +184,6 @@ class Player:
         self.difficulty_flags = difficulty_flags
         self.torch_flags = torch_flags
         self.shoe_color = shoe_color
-
-        if journey_mode:
-            difficulty_flags |= CREATIVE
 
         self.player_id = 0
 
